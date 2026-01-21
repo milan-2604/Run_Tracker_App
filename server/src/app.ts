@@ -20,7 +20,6 @@ app.get("/", (req: Request, res: Response) => {
 app.use('/api/auth',authRoutes);
 
 
-
 const startApp = async (): Promise<void> => {
   try {
     await ConnectDB();

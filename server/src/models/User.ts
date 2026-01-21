@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   weight: number;
+  authenticate(password:string): Promise<boolean>
 }
 
 const userSchema = new Schema<IUser>(
@@ -19,6 +20,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+      trim: true,
       lowercase: true,
     },
     password: {
@@ -29,7 +31,7 @@ const userSchema = new Schema<IUser>(
     weight: {
       type: Number,
       required: true,
-    },
+    }
   },
   { timestamps: true }
 );
@@ -42,6 +44,12 @@ userSchema.pre<IUser>('save', async function () {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+
+userSchema.methods.authenticate = async function (password: string): Promise<boolean> {
+  const bCryptedPassword = await bcrypt.compare(password, this.password);
+  return bCryptedPassword;
+};
 
 const User = model<IUser>('User', userSchema);
 export default User;
